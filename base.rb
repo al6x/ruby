@@ -1,9 +1,4 @@
-require_relative 'base/doc'
-require_relative 'base/env'
-require_relative 'base/log'
-require_relative 'base/os'
-require_relative 'base/terminal'
-require_relative 'base/test'
-require_relative 'base/time'
-require_relative 'base/hash'
-require_relative 'base/nil'
+[
+  'base/doc', 'base/env', 'base/log', 'base/os', 'base/terminal', 'base/test', 'base/time',
+  'base/hash', 'base/nil'
+].each{|m| require_relative m}

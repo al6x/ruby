@@ -14,9 +14,15 @@ class Url
 
   def absolute?; @absolute end
 
+  def path_parts
+    @path.split("/").reject{|v| v.empty?}
+  end
+
   def self.parse_querystring qs
     query = {}
-    CGI::parse(qs).reject{|k, v| k.empty? or v.empty? }.each{|k, v| query[k] = v[0] }
+    CGI::parse(qs).each{|k, v| query[k.to_sym] = v[0] }
+    query.reject!{|k, v| k.empty? or v.empty? }
+    query
   end
 
   def self.parse urlstring
@@ -35,7 +41,7 @@ class Url
 
   def to_s
     querystring = @query
-      .inject([]){|l, kv| l << "#{CGI.escape(kv[0])}=#{kv[1]}"}
+      .inject([]){|l, kv| l << "#{CGI.escape(kv[0].to_s)}=#{kv[1]}"}
       .join('&')
     pathinfo = "#{@path}#{querystring.empty? ? '' : '?' }#{querystring}"
     if absolute?
@@ -47,9 +53,14 @@ class Url
 end
 
 
-if __FILE__ == $0
+test :url do
   u = Url.parse("http://host.com/path?a=b&c=d")
-  p u
-  p u.query
-  p u.path
+  u.to_s.should == "http://host.com/path?a=b&c=d"
+  u.query.should == { a: 'b', c: 'd' }
+  u.path.should == '/path'
+  u.path_parts.should == ['path']
+
+  u = Url.parse("http://host.com/?a=")
+  u.path.should == ''
+  u.query.should == {}
 end

@@ -3,9 +3,7 @@ module Docs
   Todo = Struct.new :text, :priority, :tags
 
   @docs = []
-  class << self
-    attr_accessor :docs
-  end
+  self.attr_accessor :docs
 
   def doc title, text, *tags
     Docs.docs << Doc.new(title, text, tags)

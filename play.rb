@@ -1,1 +1,5 @@
-p [1] + [2]
+#!/usr/bin/env ruby
+
+require 'base'
+
+p 'hi'

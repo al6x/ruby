@@ -11,7 +11,7 @@ class Log
       @emitters.each { |e| e.emit message }
     end
 
-    [:debug, :info, :warning, :error].each do |level|
+    [:debug, :info, :warn, :error].each do |level|
       define_method level do |message, data = {}|
         Log.emit Message.new(level, nil, nil, message.to_s, data)
       end
@@ -34,7 +34,7 @@ class Log
     self
   end
 
-  [:debug, :info, :warning, :error].each do |level|
+  [:debug, :info, :warn, :error].each do |level|
     define_method level do |message, data = {}|
       Log.emit Message.new(level, @module, @id, message.to_s, data)
     end
@@ -58,7 +58,7 @@ class Log
         Terminal.grey "  " + line
       when :info
         "  " + line
-      when :warning
+      when :warn
         Terminal.yellow "W " + line
       when :error
         Terminal.red "E " + line
@@ -78,7 +78,7 @@ class Log
         $stdout << "\n" + Terminal.red(indent data.message)
         $stdout << "\n" + Terminal.grey(indent data.backtrace.join("\n"))
       elsif not data.empty?
-        s = data.inspect.gsub(/^\{|\}$/, '')
+        s = data.inspect.gsub /^\{|\}$/, ''
         if s.size < 50
           $stdout << " " + Terminal.grey(s)
         else
@@ -93,7 +93,7 @@ class Log
 end
 
 module Logging
-  [:debug, :info, :warning, :error].each do |level|
+  [:debug, :info, :warn, :error].each do |level|
     define_method level do |message, data = {}|
       (@log || Log.new(self)).send level, message.to_s, data
     end
@@ -106,7 +106,7 @@ if __FILE__ == $0
   log = Log.new "Finance"
   log.id("MSFT").info "getting prices in USD"
   log.id("MSFT").info "getting prices in USD", price: 100
-  log.id("MSFT").warning "no response"
+  log.id("MSFT").warn "no response"
   begin
     raise "some error"
   rescue => e

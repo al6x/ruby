@@ -1,1 +1,1 @@
-trap("SIGINT") { exit }
+IRB.conf[:IGNORE_SIGINT] = false

@@ -1,12 +1,9 @@
-module ENVExtensions
-  def test? name = nil
-    ENV['test'] == 'true' or ENV['test'] == name.to_s
-  end
+def ENV.test? name = nil
+  ENV['test'] == 'true' or ENV['test'] == name.to_s
 end
-ENV.extend ENVExtensions
 
 ARGV.each do |k|
-  k, v = k.split(/=/)
+  k, v = k.split '='
   ENV[k] = v || 'true'
 end
 

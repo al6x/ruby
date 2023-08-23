@@ -1,7 +1,8 @@
 let p = console.log.bind(console)
 
 export class Page {
-  constructor() {
+  constructor(tick = 0) {
+    this.tick = tick
     this.log = Log("page")
     this._listen_to_dom_events()
     this._connect()
@@ -10,22 +11,23 @@ export class Page {
   _listen_to_dom_events() {
     let self = this
     async function handle(raw_event) {
-      const event = { keys: [] }
-      if (raw_event.altKey) event.keys.push("alt")
-      if (raw_event.ctrlKey) event.keys.push("ctrl")
-      if (raw_event.shiftKey) event.keys.push("shift")
-      if (raw_event.metaKey) event.keys.push("meta")
+      let keys = []
+      if (raw_event.altKey) keys.push("alt")
+      if (raw_event.ctrlKey) keys.push("ctrl")
+      if (raw_event.shiftKey) keys.push("shift")
+      if (raw_event.metaKey) keys.push("meta")
       let target = raw_event.srcElement
+      let id = undefined
       while (target && target != document.body) {
         if (target.id != "") {
-          event.id = target.id
+          id = target.id
           break
         }
 
         target = target.parentElement
       }
-      if (!event.id) throw new Error("can't get id for event")
-      try   { self.send({ click: event }) }
+      if (!id) throw new Error("can't get id for event")
+      try   { self.send({ click: id, keys }) }
       catch { self.log.error("can't send event") }
     }
     document.body.addEventListener("click", handle)
@@ -51,7 +53,9 @@ export class Page {
   }
 
   _connect() {
-    this.socket = new WebSocket('ws://' + location.hostname + ':' + location.port + '/', ['xmpp'])
+    let ws_url = location.href.replace(/^(http:|https:)/, 'ws:')
+    // this.socket = new WebSocket('ws://' + location.hostname + ':' + location.port + '/', ['xmpp'])
+    this.socket = new WebSocket(ws_url, ['xmpp'])
 
     this.socket.addEventListener('open', () => this.log.info('socket opened'))
 
@@ -66,6 +70,13 @@ export class Page {
 
     this.socket.onmessage = (event) => {
       this.handle(JSON.parse(event.data))
+    }
+
+    if (this.tick > 0) {
+      let t = setInterval(() => {
+        if (!this.socket) clearInterval(t)
+        else this.socket.send(JSON.stringify({ tick: true }))
+      }, this.tick)
     }
   }
 }
