@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'base'
+class String
+  def some = :hi
+end
 
-p 'hi'
+p 'hi'.some

@@ -16,7 +16,6 @@ end
 
 if __FILE__ == $0
   include Docs
-  a = []
   doc "Some title", "Some text", :a, :b
   todo "doit", :normal, :a, :b
   puts Docs.docs
